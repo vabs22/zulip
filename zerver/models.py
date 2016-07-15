@@ -515,6 +515,7 @@ class UserProfile(ModelReprMixin, AbstractBaseUser, PermissionsMixin):
     since they can't be used to read messages.
     """
     INCOMING_WEBHOOK_BOT = 2
+    OUTGOING_WEBHOOK_BOT = 3
 
     # Fields from models.AbstractUser minus last_name and first_name,
     # which we don't use; email is modified to make it indexed and unique.
@@ -661,6 +662,11 @@ class UserProfile(ModelReprMixin, AbstractBaseUser, PermissionsMixin):
         # type: () -> bool
         return self.bot_type == UserProfile.INCOMING_WEBHOOK_BOT
 
+    @property
+    def is_outgoing_webhook_bot(self):
+        # type: () -> bool
+        return self.bot_type == UserProfile.OUTGOING_WEBHOOK_BOT
+
     @staticmethod
     def emails_from_ids(user_ids):
         # type: (Sequence[int]) -> Dict[int, Text]
@@ -730,6 +736,26 @@ class EmailChangeStatus(models.Model):
     status = models.IntegerField(default=0) # type: int
 
     realm = models.ForeignKey(Realm) # type: Realm
+
+class Services(models.Model):
+    service_name = models.CharField(max_length=UserProfile.MAX_NAME_LENGTH, unique=True) # type: Text
+    user_profile = models.ForeignKey(UserProfile) # type: UserProfile
+    base_url = models.TextField() # type: Text
+    service_api_key = models.TextField() # type: Text
+    interface = models.TextField(default=None) # type: Text
+
+def get_realm_outgoing_webhook_services_name(realm):
+    # type: (Realm) -> List[Any]
+    return list(Services.objects.filter(user_profile__realm=realm, user_profile__is_bot=True,
+                                        user_profile__bot_type=UserProfile.OUTGOING_WEBHOOK_BOT).values('service_name'))
+
+def get_realm_bot_services(email, realm):
+    # type: (str, Realm) -> List[Any]
+    return list(Services.objects.filter(user_profile__email=email, user_profile__realm=realm).values())
+
+def get_service_profile(email, realm, service_name):
+    # type: (str, Realm, str) -> Services
+    return Services.objects.get(user_profile__email=email, user_profile__realm=realm, service_name=service_name)
 
 class PushDeviceToken(models.Model):
     APNS = 1
