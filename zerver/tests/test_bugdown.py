@@ -10,6 +10,7 @@ from zerver.lib.actions import (
     do_remove_realm_emoji,
     do_set_alert_words,
     get_realm,
+    do_create_user
 )
 from zerver.lib.alert_words import alert_words_in_realm
 from zerver.lib.camo import get_camo_url
@@ -27,6 +28,7 @@ from zerver.models import (
     flush_realm_filter,
     get_client,
     get_realm,
+    get_realm_by_email_domain,
     get_user_profile_by_email,
     get_stream,
     realm_filters_for_realm,
@@ -35,6 +37,7 @@ from zerver.models import (
     Realm,
     RealmFilter,
     Recipient,
+    UserProfile,
 )
 
 import copy
@@ -631,6 +634,25 @@ class BugdownTest(TestCase):
         content = "We have a NOTHINGWORD day today!"
         self.assertEqual(render(msg, content), "<p>We have a NOTHINGWORD day today!</p>")
         self.assertEqual(msg.user_ids_with_alert_words, set())
+
+    def test_outgoing_webhook_trigger(self):
+        # type: () -> None
+        user_profile = get_user_profile_by_email("othello@zulip.com")
+        msg = Message(sender=user_profile, sending_client=get_client("test"))
+        bot_profile = do_create_user(email="foo-bot@zulip.com",
+                                     password="test",
+                                     realm=get_realm_by_email_domain("zulip.com"),
+                                     full_name="FooBot",
+                                     short_name="foo-bot",
+                                     bot_type=UserProfile.OUTGOING_WEBHOOK_BOT,
+                                     bot_owner=user_profile)
+
+        content = u'@**FooBot** foo bar!!!'
+        msg.content = content
+        render_markdown(msg, content)
+        outhook_bot, command = msg.outgoing_webhook_bot_triggers[0]
+        self.assertEqual(bot_profile.email, outhook_bot["email"])
+        self.assertEqual(command, u'foo bar!!!')
 
     def test_mention_wildcard(self):
         # type: () -> None
