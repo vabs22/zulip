@@ -808,6 +808,15 @@ def do_send_messages(messages_maybe_none):
             if user_profile.email in user_presences:
                 presences[user_profile.id] = user_presences[user_profile.email]
 
+        for outhook_bot, command in message['message'].outgoing_webhook_bot_triggers:
+            bot_email = outhook_bot['email']
+            trigger_event = {"bot_email": bot_email,
+                             "command": command,
+                             "retry": 0,
+                             "service_name": None,
+                             "message": message['message'].to_log_dict()}
+            queue_json_publish("outgoing_webhooks", trigger_event, lambda x: None)
+
         event = dict(
             type         = 'message',
             message      = message['message'].id,
