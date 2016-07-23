@@ -267,6 +267,10 @@ def get_realm(string_id):
     # type: (Text) -> Realm
     return Realm.objects.filter(string_id=string_id).first()
 
+def get_realm_from_domain(domain):
+    # type: (Text) -> Realm
+    return Realm.objects.get(domain=domain)
+
 def completely_open(realm):
     # type: (Realm) -> bool
     # This realm is completely open to everyone on the internet to
@@ -750,8 +754,8 @@ def get_realm_outgoing_webhook_services_name(realm):
                                         user_profile__bot_type=UserProfile.OUTGOING_WEBHOOK_BOT).values('service_name'))
 
 def get_realm_bot_services(email, realm):
-    # type: (str, Realm) -> List[Any]
-    return list(Services.objects.filter(user_profile__email=email, user_profile__realm=realm).values())
+    # type: (str, Realm) -> List[Services]
+    return list(Services.objects.filter(user_profile__email=email, user_profile__realm=realm))
 
 def get_service_profile(email, realm, service_name):
     # type: (str, Realm, str) -> Services
