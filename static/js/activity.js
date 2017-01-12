@@ -51,6 +51,21 @@ exports.presence_info = {};
 
 var huddle_timestamps = new Dict();
 
+exports.buddy_list = [];
+
+exports.initialise_buddy_list = function (buddy_list) {
+    if (buddy_list.length > 0) {
+        var i;
+        var temp_list = [];
+        for (i=0; i<buddy_list.length; i=i+1) {
+            temp_list[i] = parseInt(buddy_list[i], 10);
+            if (exports.buddy_list.indexOf(buddy_list[i]) === -1) {
+                exports.buddy_list.push(buddy_list[i]);
+            }
+        }
+    }
+};
+
 function update_count_in_dom(count_span, value_span, count) {
     if (count === 0) {
         count_span.hide();
@@ -259,7 +274,13 @@ function filter_user_ids(user_ids) {
 
 function filter_and_sort(users) {
     var user_ids = Object.keys(users);
-    user_ids = filter_user_ids(user_ids);
+    var temp = [];
+    for (var i = 0; i < user_ids.length; i=i+1) {
+        if (exports.buddy_list.indexOf(parseInt(user_ids[i], 10)) === -1) {
+            temp.push(user_ids[i]);
+        }
+    }
+    user_ids = filter_user_ids(temp);
     user_ids = sort_users(user_ids, exports.presence_info);
     return user_ids;
 }
@@ -319,6 +340,12 @@ exports.update_users = function (user_list) {
         });
     } else {
         $('#user_presences').html(templates.render('user_presence_rows', {users: user_info}));
+
+        if (exports.buddy_list.length > 0) {
+            exports.buddy_list = sort_users(exports.buddy_list, exports.presence_info);
+            var buddy_users_info = _.map(exports.buddy_list.toString().split(","), info_for);
+            $("#buddy_list").html(templates.render('user_presence_rows', {users: buddy_users_info}));
+        }
     }
 
     // Update user fading, if necessary.
@@ -334,6 +361,47 @@ function actually_update_users_for_search() {
 }
 
 var update_users_for_search = _.throttle(actually_update_users_for_search, 50);
+
+exports.add_user_to_buddy_list = function (user_id) {
+    exports.buddy_list.push(parseInt(user_id, 10));
+    exports.buddy_list = sort_users(exports.buddy_list, exports.presence_info);
+    var index = exports.buddy_list.indexOf(parseInt(user_id, 10));
+    $("#buddy_list li").eq(index).before(templates.render('user_presence_row', info_for(user_id)));
+    $("#user_presences").find("[data-user-id='" + user_id + "']").remove();
+};
+
+exports.remove_user_from_buddy_list = function (user_id) {
+    var index = exports.buddy_list.indexOf(parseInt(user_id, 10));
+    while (index > -1) {
+        exports.buddy_list.splice(index, 1);
+        index = exports.buddy_list.indexOf(parseInt(user_id, 10));
+    }
+
+    var users = filter_and_sort(exports.presence_info);
+    index = users.indexOf(user_id);
+    $("#user_presences li").eq(index).before(templates.render('user_presence_row', info_for(user_id)));
+    $("#buddy_list").find("[data-user-id='" + user_id + "']").remove();
+    resize.resize_page_components();
+};
+
+exports.send_buddy_list_request = function (should_add, user_id) {
+    channel.patch({
+        url: "/json/users/me/buddy",
+        data: {
+            user_id:  JSON.stringify(page_params.user_id.toString()),
+            buddy_id:  JSON.stringify(user_id.toString()),
+            should_add: JSON.stringify(should_add.toString()),
+        },
+        timeout: 10*1000,
+        success: function () {
+            if (should_add) {
+                exports.add_user_to_buddy_list(user_id);
+            } else {
+                exports.remove_user_from_buddy_list(user_id);
+            }
+        },
+    });
+};
 
 function show_huddles() {
     $('#group-pm-list').addClass("show");
@@ -470,6 +538,7 @@ exports.initialize = function () {
 
     focus_ping();
 
+    exports.initialise_buddy_list(page_params.buddy_list);
     activity.set_user_statuses(page_params.initial_presences,
                                page_params.initial_servertime);
 };

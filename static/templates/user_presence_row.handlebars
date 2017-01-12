@@ -3,7 +3,7 @@
     <span class="user-status-indicator"></span>
     <span class="user-device-indicator">{{#if mobile}}{{/if}}</span>
       <a href="{{href}}" data-user-id="{{user_id}}" data-name="{{name}}" title="{{name}} {{type_desc}}"
-         class="{{#if my_fullname}} my_fullname{{/if}}">{{name}}</a>
+         data-buddy="{{bool_buddy}}" class="{{#if my_fullname}} my_fullname{{/if}}">{{name}}</a>
   </span>
   <span class="count"><span class="value">{{#if num_unread}}{{num_unread}}{{/if}}</span></span>
   <span class="arrow"><i class="icon-vector-chevron-down"></i></span>

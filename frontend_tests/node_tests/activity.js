@@ -32,26 +32,31 @@ var alice = {
     email: 'alice@zulip.com',
     user_id: 1,
     full_name: 'Alice Smith',
+    bool_buddy: false,
 };
 var fred = {
     email: 'fred@zulip.com',
     user_id: 2,
     full_name: "Fred Flintstone",
+    bool_buddy: true,
 };
 var jill = {
     email: 'jill@zulip.com',
     user_id: 3,
     full_name: 'Jill Hill',
+    bool_buddy: true,
 };
 var mark = {
     email: 'mark@zulip.com',
     user_id: 4,
     full_name: 'Marky Mark',
+    bool_buddy: false,
 };
 var norbert = {
     email: 'norbert@zulip.com',
     user_id: 5,
     full_name: 'Norbert Oswald',
+    bool_buddy: false,
 };
 
 global.people.add(alice);
@@ -257,27 +262,11 @@ activity.presence_info[jill.user_id] = { status: activity.ACTIVE };
 activity.presence_info[mark.user_id] = { status: activity.IDLE };
 activity.presence_info[norbert.user_id] = { status: activity.ACTIVE };
 
+activity.buddy_list = [fred.user_id, jill.user_id];
+
 (function test_presence_list_full_update() {
     var users = activity.update_users();
     assert.deepEqual(users, [{
-            name: 'Fred Flintstone',
-            href: '#narrow/pm-with/2-fred',
-            user_id: fred.user_id,
-            num_unread: 0,
-            type: 'active',
-            type_desc: 'is active',
-            mobile: undefined,
-        },
-        {
-            name: 'Jill Hill',
-            href: '#narrow/pm-with/3-jill',
-            user_id: jill.user_id,
-            num_unread: 0,
-            type: 'active',
-            type_desc: 'is active',
-            mobile: undefined,
-        },
-        {
             name: 'Norbert Oswald',
             href: '#narrow/pm-with/5-norbert',
             user_id: norbert.user_id,
@@ -285,6 +274,7 @@ activity.presence_info[norbert.user_id] = { status: activity.ACTIVE };
             type: 'active',
             type_desc: 'is active',
             mobile: undefined,
+            bool_buddy: false.toString(),
         },
         {
             name: 'Alice Smith',
@@ -294,6 +284,7 @@ activity.presence_info[norbert.user_id] = { status: activity.ACTIVE };
             type: 'idle',
             type_desc: 'is not active',
             mobile: undefined,
+            bool_buddy: false.toString(),
         },
         {
             name: 'Marky Mark',
@@ -303,6 +294,7 @@ activity.presence_info[norbert.user_id] = { status: activity.ACTIVE };
             type: 'idle',
             type_desc: 'is not active',
             mobile: undefined,
+            bool_buddy: false.toString(),
         },
     ]);
 }());
@@ -323,7 +315,8 @@ activity.presence_info[norbert.user_id] = { status: activity.ACTIVE };
         type: 'active',
         type_desc: 'is active',
         mobile: undefined,
-    } ]);
+        bool_buddy: false.toString(),
+} ]);
 
     // Test if user index in presence_info is the expected one
     var all_users = activity._filter_and_sort(activity.presence_info);
@@ -341,9 +334,46 @@ activity.presence_info[norbert.user_id] = { status: activity.ACTIVE };
         type: 'active',
         type_desc: 'is active',
         mobile: undefined,
+        bool_buddy: false.toString(),
     } ]);
 
     all_users = activity._filter_and_sort(activity.presence_info);
-    assert.equal(all_users.indexOf(mark.user_id.toString()), 3);
+    assert.equal(all_users.indexOf(mark.user_id.toString()), 1);
 
+}());
+
+(function test_add_user_to_buddy_list() {
+    var index = activity.buddy_list.indexOf(mark.user_id);
+    assert.equal(index, -1);
+
+    activity.add_user_to_buddy_list(mark.user_id);
+    index = activity.buddy_list.indexOf(mark.user_id);
+    assert(index !== -1);
+}());
+
+(function test_remove_user_from_buddy_list() {
+    activity.add_user_to_buddy_list(mark.user_id);
+
+    activity.remove_user_from_buddy_list(mark.user_id);
+    var index = activity.buddy_list.indexOf(mark.user_id);
+    assert.equal(index, -1);
+}());
+
+(function test_initialise_buddy_list() {
+    var buddy_list = [alice.user_id, fred.user_id, jill.user_id, mark.user_id];
+    activity.initialise_buddy_list(buddy_list);
+
+    console.log(JSON.stringify(activity.buddy_list));
+    assert.equal(activity.buddy_list.length, 4);
+    var index = activity.buddy_list.indexOf(alice.user_id);
+    assert(index > -1);
+
+    index = activity.buddy_list.indexOf(fred.user_id);
+    assert(index > -1);
+
+    index = activity.buddy_list.indexOf(jill.user_id);
+    assert(index > -1);
+
+    index = activity.buddy_list.indexOf(mark.user_id);
+    assert(index > -1);
 }());

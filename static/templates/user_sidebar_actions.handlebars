@@ -23,4 +23,15 @@
       {{#tr this}}@ Compose a message @-mentioning <b>__name__</b>{{/tr}}
     </a>
   </li>
+  <li>
+    {{#if buddy}}
+        <a class="remove_from_buddy_list">
+            {{#tr this}}Remove <b>__name__</b> from Buddy list{{/tr}}
+        </a>
+    {{else}}
+        <a class="add_to_buddy_list">
+            {{#tr this}}Add <b>__name__</b> to Buddy users list{{/tr}}
+        </a>
+    {{/if}}
+  </li>
 </ul>

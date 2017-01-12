@@ -519,6 +519,22 @@ exports.register_click_handlers = function () {
         e.preventDefault();
     });
 
+    $('body').on('click', '.user_popover .add_to_buddy_list', function (e) {
+        var user_id = $(e.target).parents('ul').attr('data-user-id');
+        activity.send_buddy_list_request(true, user_id);
+        popovers.hide_user_sidebar_popover();
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
+    $('body').on('click', '.user_popover .remove_from_buddy_list', function (e) {
+        var user_id = $(e.target).parents('ul').attr('data-user-id');
+        activity.send_buddy_list_request(false, user_id);
+        popovers.hide_user_sidebar_popover();
+        e.stopPropagation();
+        e.preventDefault();
+    });
+
     $('body').on('click', '.sender_info_popover .narrow_to_private_messages', function (e) {
         var email = $(e.target).parents('ul').attr('data-email');
         narrow.by('pm-with', email, {select_first_unread: true, trigger: 'user sidebar popover'});
@@ -546,7 +562,7 @@ exports.register_click_handlers = function () {
         e.preventDefault();
     });
 
-    $('#user_presences').on('click', 'span.arrow', function (e) {
+    $('#user_presences, #buddy_list').on('click', 'span.arrow', function (e) {
         e.stopPropagation();
 
         // use email of currently selected user, rather than some elem comparison,
@@ -554,6 +570,7 @@ exports.register_click_handlers = function () {
         var target = $(this).closest('li');
         var user_id = target.find('a').attr('data-user-id');
         var name = target.find('a').attr('data-name');
+        var bool_buddy = (target.find('a').attr('data-buddy') === "true");
 
         if (current_user_sidebar_user_id === user_id) {
             // If the popover is already shown, clicking again should toggle it.
@@ -565,7 +582,7 @@ exports.register_click_handlers = function () {
         if (userlist_placement === "right") {
             popovers.show_userlist_sidebar();
         }
-        var template_vars = {user_id: user_id, name: name};
+        var template_vars = {user_id: user_id, name: name, buddy: bool_buddy};
         var content = templates.render('user_sidebar_actions', template_vars);
 
         target.popover({
