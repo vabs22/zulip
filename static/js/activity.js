@@ -280,6 +280,10 @@ function get_num_unread(user_id) {
 function info_for(user_id) {
     var presence = exports.presence_info[user_id].status;
     var person = people.get_person_from_user_id(user_id);
+    var bool_buddy = false;
+    if (exports.buddy_list.indexOf(parseInt(user_id, 10)) > -1) {
+        bool_buddy = true;
+    }
     return {
         href: narrow.pm_with_uri(person.email),
         name: person.full_name,
@@ -288,6 +292,7 @@ function info_for(user_id) {
         type: presence,
         type_desc: presence_descriptions[presence],
         mobile: exports.presence_info[user_id].mobile,
+        bool_buddy: bool_buddy.toString(),
     };
 }
 

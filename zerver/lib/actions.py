@@ -37,7 +37,7 @@ from zerver.models import Realm, RealmEmoji, Stream, UserProfile, UserActivity, 
     realm_filters_for_realm, RealmFilter, receives_offline_notifications, \
     ScheduledJob, get_owned_bot_dicts, \
     get_old_unclaimed_attachments, get_cross_realm_emails, receives_online_notifications, \
-    Reaction
+    Reaction, BuddyList
 
 from zerver.lib.alert_words import alert_words_in_realm
 from zerver.lib.avatar import get_avatar_url, avatar_url
@@ -2663,6 +2663,22 @@ def truncate_topic(topic):
     # type: (Text) -> Text
     return truncate_content(topic, MAX_SUBJECT_LENGTH, "...")
 
+def do_update_buddy_list(user_profile, buddy_profile, should_add):
+    # type: (UserProfile, str, bool) -> None
+
+    record = BuddyList.objects.get_or_create(user=user_profile, buddy=buddy_profile)
+    if should_add == False:
+        record[0].delete()
+
+def get_buddy_list(user_profile):
+    # type: (UserProfile) -> List[int]
+
+    records = BuddyList.objects.filter(user=user_profile)
+    user_list = []
+    for record in records:
+        user_list.append(record.buddy.id)
+
+    return user_list
 
 def update_user_message_flags(message, ums):
     # type: (Message, Iterable[UserMessage]) -> None
@@ -3125,6 +3141,8 @@ def fetch_initial_state_data(user_profile, event_types, queue_id):
         # get any updates during a session from get_events()
         pass
 
+    if want('buddy_list'):
+        state['buddy_list'] = get_buddy_list(user_profile)
     if want('stream'):
         state['streams'] = do_get_streams(user_profile)
     if want('default_streams'):

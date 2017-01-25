@@ -1390,3 +1390,10 @@ class ScheduledJob(models.Model):
     # Kind if like a ForeignKey, but table is determined by type.
     filter_id = models.IntegerField(null=True) # type: Optional[int]
     filter_string = models.CharField(max_length=100) # type: Text
+
+class BuddyList(models.Model):
+    user = models.ForeignKey(UserProfile, related_name="user")  # type: UserProfile
+    buddy = models.ForeignKey(UserProfile, related_name="buddy") # type: UserProfile
+
+    class Meta(object):
+        unique_together = ("user", "buddy")

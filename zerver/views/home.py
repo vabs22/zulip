@@ -241,6 +241,7 @@ def home_real(request):
         notifications_stream  = notifications_stream,
         cross_realm_bots      = list(get_cross_realm_dicts()),
         use_websockets        = settings.USE_WEBSOCKETS,
+        buddy_list            = register_ret['buddy_list'],
 
         # Stream message notification settings:
         stream_desktop_notifications_enabled = user_profile.enable_stream_desktop_notifications,

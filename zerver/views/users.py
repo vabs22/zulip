@@ -17,14 +17,15 @@ from zerver.forms import CreateUserForm
 from zerver.lib.actions import do_change_full_name, do_change_is_admin, \
     do_create_user, subscribed_to_stream, do_deactivate_user, do_reactivate_user, \
     do_change_default_events_register_stream, do_change_default_sending_stream, \
-    do_change_default_all_public_streams, do_regenerate_api_key, do_change_avatar_source
+    do_change_default_all_public_streams, do_regenerate_api_key, do_change_avatar_source, \
+    do_update_buddy_list
 from zerver.lib.avatar import avatar_url, get_avatar_url
 from zerver.lib.response import json_error, json_success
 from zerver.lib.upload import upload_avatar_image
 from zerver.lib.validator import check_bool, check_string
 from zerver.lib.utils import generate_random_token
 from zerver.models import UserProfile, Stream, Realm, Message, get_user_profile_by_email, \
-    get_stream, email_allowed_for_realm
+    get_stream, email_allowed_for_realm, get_user_profile_by_id
 from zproject.jinja2 import render_to_response
 
 
@@ -110,6 +111,23 @@ def update_user_backend(request, user_profile, email,
         if len(new_full_name) > UserProfile.MAX_NAME_LENGTH:
             return json_error(_("Name too long!"))
         do_change_full_name(target, new_full_name)
+
+    return json_success()
+
+@has_request_variables
+def update_buddy_list(request, user_profile, user_id=REQ(validator=check_string),
+                      buddy_id=REQ(validator=check_string), should_add=REQ(validator=check_string)):
+    # type: (HttpRequest, UserProfile, str, str, str) -> HttpResponse
+    try:
+        user_profile = get_user_profile_by_id(user_id)
+    except UserProfile.DoesNotExist:
+        return json_error(_('No such user with email id ' + user_id))
+
+    try:
+        buddy_profile = get_user_profile_by_id(buddy_id)
+    except UserProfile.DoesNotExist:
+        return json_error(_('No such user with user id ' + buddy_id))
+    do_update_buddy_list(user_profile, buddy_profile, (should_add == "true"))
 
     return json_success()
 
