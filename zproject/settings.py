@@ -977,6 +977,7 @@ JS_SPECS = {
             'js/settings_display.js',
             'js/settings_notifications.js',
             'js/settings_bots.js',
+            'js/settings_outgoing_services.js',
             'js/settings_muting.js',
             'js/settings_lab.js',
             'js/settings_sections.js',

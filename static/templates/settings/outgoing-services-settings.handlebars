@@ -1,0 +1,63 @@
+<div id="outgoing-services" class="settings-section" data-name="outgoing-services">
+    <div class="bot-settings-form">
+        <p class="bot-settings-note padded-container">
+            {{#tr this}}
+            Looking for our <a href="/integrations" target="_blank">Integrations</a>
+            or <a href="{{ server_uri }}/api" target="_blank">API</a> documentation?
+            {{/tr}}
+        </p>
+
+        <ul class="nav nav-tabs nav-justified" id="bots_lists_navbar">
+            <li class="active active-bots-tab"><a>{{t "Active bots" }}</a></li>
+            <li class="inactive-bots-tab"><a>{{t "Inactive bots" }}</a></li>
+        </ul>
+
+        <ol class="bots_list" id="active_services_list">
+        </ol>
+
+        <ol class="bots_list" id="inactive_services_list">
+        </ol>
+
+        <div id="service_table_error" class="alert alert-error hide"></div>
+
+        <div class="add-new-bot-box grey-bg">
+            <form id="create_service_form" class="form-horizontal no-padding">
+                <h4 class="new-bot-section-title light no-margin">{{t "Add a new Service" }}</h4>
+                <div class="new-bot-form">
+                    <div class="input-group">
+                        <label for="create_service_name">{{t "Name" }}</label>
+                        <input type="text" name="service_name" id="create_service_name" class="required"
+                               maxlength=100 placeholder="{{t 'Calculator Service' }}" value="" />
+                        <div><label for="create_service_name" generated="true" class="text-error"></label></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="create_service_base_url">{{t "Base URL" }}</label>
+                        <input type="text" name="service_base_url" id="create_service_base_url" class="required"
+                               maxlength=100 placeholder="{{t 'https://calculator.org/3562' }}" value="" />
+                        <div><label for="create_service_base_url" generated="true" class="text-error"></label></div>
+                    </div>
+                    <div class="input-group">
+                        <label for="owner_bot">{{t "Owner bot" }}</label>
+                        <select name="owner_bot" id="create_owner_bot">
+                            <option value="1">{{t "Generic bot" }}</option>
+                            <option value="2">{{t "Incoming webhook" }}</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label for="service_interface">{{t "Interface" }}</label>
+                        <select name="service_interface" id="create_service_interface">
+                            <option value="1">{{t "Generic bot" }}</option>
+                            <option value="2">{{t "Incoming webhook" }}</option>
+                        </select>
+                    </div>
+                    <p>
+                        <div id="bot_avatar_file_input_error" class="text-error"></div>
+                    </p>
+                    <button type="submit" class="button white rounded sea-green" id="create_bot_button">
+                        {{t 'Create service' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

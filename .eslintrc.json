@@ -41,6 +41,7 @@
         "settings_muting": false,
         "settings_lab": false,
         "settings_bots": false,
+        "settings_outgoing_services": false,
         "settings_sections": false,
         "settings_emoji": false,
         "settings_org": false,

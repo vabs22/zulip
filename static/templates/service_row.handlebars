@@ -1,0 +1,46 @@
+<li class="bot-information-box">
+    <div class="image overflow-hidden">
+        <div class="details">
+            <div class="name">{{name}}</div>
+            {{#if is_active}}
+            <div class="edit-bot-buttons">
+                <button type="submit" class="btn open_edit_bot_form" data-sidebar-form="edit-bot" title="{{t 'Edit bot' }}" data-bot-email="{{bot_email}}" data-name="{{name}}">
+                    <i class="icon-vector-pencil blue"></i>
+                </button>
+                <button type="submit" class="btn delete_bot" title="{{t 'Delete bot' }}" data-bot-email="{{bot_email}}" data-name="{{name}}">
+                    <i class="icon-vector-trash danger-red"></i>
+                </button>
+            </div>
+            {{else}}
+            <button class="button white round btn-warning reactivate_bot" title="{{t 'Reactivate bot' }}" data-bot-email="{{bot_email}}" data-name="{{name}}">{{t "Reactivate bot" }}</button>
+            {{/if}}
+        </div>
+    </div>
+    <div class="bot_info">
+        <div class="email">
+            <div class="field">{{t "Owner" }}</div>
+            <div class="value">{{bot_email}}</div>
+        </div>
+        <div class="email">
+            <div class="field">{{t "Base URL" }}</div>
+            <div class="value">{{base_url}}</div>
+        </div>
+        <div class="email">
+            <div class="field">{{t "Interface" }}</div>
+            <div class="value">{{interface}}</div>
+        </div>
+        {{#if is_active}}
+        <div class="api_key">
+            <span class="field">{{t "Token" }}</span>
+            <span class="api-key-value-and-button">
+                <span class="value">{{token}}</span>
+                <button type="submit" class="button no-style btn-secondary regenerate_bot_api_key" title="{{t 'Generate new API key' }}" data-bot-email="{{bot_email}}" data-name="{{name}}">
+                    <i class="icon-vector-refresh"></i>
+                </button>
+            </span>
+            <div class="api_key_error text-error"></div>
+        </div>
+        <div id="bot_delete_error{{id_suffix}}" class="alert alert-error hide"></div>
+        {{/if}}
+    </div>
+</li>

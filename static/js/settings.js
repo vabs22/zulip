@@ -54,6 +54,7 @@ function _setup_page() {
             "display-settings": i18n.t("Display settings"),
             notifications: i18n.t("Notifications"),
             "your-bots": i18n.t("Your bots"),
+            "outgoing-services": i18n.t("Your Outgoing services"),
             "alert-words": i18n.t("Alert words"),
             "uploaded-files": i18n.t("Uploaded files"),
             "muted-topics": i18n.t("Muted topics"),
