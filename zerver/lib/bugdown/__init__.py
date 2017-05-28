@@ -1131,6 +1131,7 @@ class AlertWordsNotificationProcessor(markdown.preprocessors.Preprocessor):
                 if re.search(match_re, content):
                     current_message.alert_words.add(word)
 
+            print(current_message.alert_words)
         return lines
 
 # This prevents realm_filters from running on the content of a

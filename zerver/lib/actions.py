@@ -764,6 +764,8 @@ def do_send_messages(messages_maybe_none):
             message['realm'])
         message['message'].rendered_content = rendered_content
         message['message'].rendered_content_version = bugdown_version
+        print(message['message'].alert_words)
+        print(message['recipients'])
         links_for_embed |= message['message'].links_for_preview
 
     for message in messages:

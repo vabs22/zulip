@@ -332,6 +332,7 @@ def render_markdown(message, content, realm=None, realm_alert_words=None, messag
                                        possible_words=possible_words,
                                        sent_by_bot=sent_by_bot)
 
+    print(message.alert_words)
     if message is not None:
         message.user_ids_with_alert_words = set()
 
