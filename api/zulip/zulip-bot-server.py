@@ -6,16 +6,13 @@ import json
 from typing import Any, Dict, Mapping, Union, List
 from werkzeug.exceptions import BadRequest
 from six.moves.configparser import SafeConfigParser
+import optparse
 
-our_dir = os.path.dirname(os.path.abspath(__file__))
+source_file_dir = os.path.dirname(os.path.abspath(__file__))
 
-# For dev setups, we can find the API in the repo itself.
-if os.path.exists(os.path.join(our_dir, '../api/zulip')):
-    sys.path.insert(0, '../api')
-
-from zulip import Client
-from bots_api.run import get_lib_module
-from bots_api.bot_lib import BotHandlerApi, StateHandler
+from api.zulip import Client
+from api.bots_api.run import get_lib_module
+from api.bots_api.bot_lib import BotHandlerApi, StateHandler
 
 bots_config = {}  # type: Dict[str, Mapping[str, str]]
 available_bots = []  # type: List[str]
@@ -36,8 +33,13 @@ def read_config_file(config_file_path):
 def load_lib_modules():
     # type: () -> None
     for bot in available_bots:
-        path = "bots/" + str(bot) + "/" + str(bot) + ".py"
-        bots_lib_module[bot] = get_lib_module(path)
+        path = source_file_dir + "/bots/" + str(bot) + "/" + str(bot) + ".py"
+        try:
+            bots_lib_module[bot] = get_lib_module(path)
+        except Exception:
+            print("\n ERROR: Bot \"{}\" doesn't exists. Please make sure you have set up the flaskbotrc "
+                  "file correctly.\n").format(bot)
+            sys.exit(1)
 
 app = Flask(__name__)
 
@@ -50,7 +52,11 @@ def handle_bot(bot):
     client = Client(email=bots_config[bot]["email"],
                     api_key=bots_config[bot]["key"],
                     site=bots_config[bot]["site"])
-    restricted_client = BotHandlerApi(client)
+    try:
+        restricted_client = BotHandlerApi(client)
+    except SystemExit:
+        return BadRequest("Cannot fetch user profile for bot {}, make sure you have set up the flaskbotrc "
+                          "file correctly.".format(bot))
     message_handler = bots_lib_module[bot].handler_class()
 
     # TODO: Handle stateful bots properly.
@@ -63,7 +69,25 @@ def handle_bot(bot):
     return "Success!"
 
 if __name__ == "__main__":
-    read_config_file(sys.argv[1])
+    usage = '''
+            zulip-bot-server <path to flaskbotrc>
+            Example: zulip-bot-server ~/flaskbotrc
+            (This program loads the bot configurations from the
+            config file (flaskbotrc here) and loads the bot modules.
+            It then starts the server and fetches the requests to the
+            above loaded modules and returns the success/failure result)
+            Please make sure you have a current flaskbotrc file with the
+            configurations of the required bots.
+            See lib/readme.md for more context.
+            '''
+
+    parser = optparse.OptionParser(usage=usage)
+    parser.add_option('--config-file',
+                      action='store',
+                      help='(config file for the zulip bot server (flaskbotrc))')
+    (options, args) = parser.parse_args()
+
+    read_config_file(options.config_file)
     available_bots = list(bots_config.keys())
     load_lib_modules()
 
