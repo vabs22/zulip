@@ -1,13 +1,15 @@
 from __future__ import absolute_import
 from typing import Any, Dict, Text
 
-from zerver.models import GENERIC_INTERFACE, Service, ZULIP_BOT_SERVER_INTERFACE
+from zerver.models import GENERIC_INTERFACE, Service, ZULIP_BOT_SERVER_INTERFACE, SLACK_INTERFACE
 from zerver.outgoing_webhooks.generic import GenericOutgoingWebhookService
 from zerver.outgoing_webhooks.zulip_bot_server import ZulipBotService
+from zerver.outgoing_webhooks.slack import SlackOutgoingWebhookService
 
 AVAILABLE_OUTGOING_WEBHOOK_INTERFACES = {
     GENERIC_INTERFACE: GenericOutgoingWebhookService,
     ZULIP_BOT_SERVER_INTERFACE: ZulipBotService,
+    SLACK_INTERFACE: SlackOutgoingWebhookService,
 }   # type: Dict[Text, Any]
 
 def get_service_interface_class(interface):
