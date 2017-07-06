@@ -17,7 +17,8 @@ from zerver.forms import CreateUserForm
 from zerver.lib.actions import do_change_avatar_fields, do_change_bot_owner, \
     do_change_is_admin, do_change_default_all_public_streams, \
     do_change_default_events_register_stream, do_change_default_sending_stream, \
-    do_create_user, do_deactivate_user, do_reactivate_user, do_regenerate_api_key, notify_created_bot
+    do_create_user, do_deactivate_user, do_reactivate_user, do_regenerate_api_key, notify_created_bot, \
+    do_update_outgoing_webhook_service
 from zerver.lib.avatar import avatar_url, get_gravatar_url
 from zerver.lib.response import json_error, json_success
 from zerver.lib.streams import access_stream_by_name
@@ -193,6 +194,9 @@ def patch_bot_backend(request, user_profile, email,
         do_change_default_events_register_stream(bot, stream)
     if default_all_public_streams is not None:
         do_change_default_all_public_streams(bot, default_all_public_streams)
+
+    if service_payload_url is not None:
+        do_update_outgoing_webhook_service(bot, service_interface, service_payload_url)
 
     if len(request.FILES) == 0:
         pass
