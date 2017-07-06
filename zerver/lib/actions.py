@@ -48,7 +48,7 @@ from zerver.models import Realm, RealmEmoji, Stream, UserProfile, UserActivity, 
     Reaction, EmailChangeStatus, CustomProfileField, \
     custom_profile_fields_for_realm, \
     CustomProfileFieldValue, validate_attachment_request, get_system_bot, \
-    get_display_recipient_by_id
+    get_display_recipient_by_id, get_bot_service_dicts_for_bots
 
 from zerver.lib.alert_words import alert_words_in_realm
 from zerver.lib.avatar import avatar_url
@@ -397,14 +397,17 @@ def notify_created_bot(user_profile):
                default_all_public_streams=user_profile.default_all_public_streams,
                avatar_url=avatar_url(user_profile),
                )
-
+    if user_profile.bot_type == UserProfile.OUTGOING_WEBHOOK_BOT:
+        bot_services = get_bot_service_dicts_for_bots(user_profile)
+    else:
+        bot_services = []
     # Set the owner key only when the bot has an owner.
     # The default bots don't have an owner. So don't
     # set the owner key while reactivating them.
     if user_profile.bot_owner is not None:
         bot['owner'] = user_profile.bot_owner.email
 
-    event = dict(type="realm_bot", op="add", bot=bot)
+    event = dict(type="realm_bot", op="add", bot=bot, bot_service=bot_services)
     send_event(event, bot_owner_userids(user_profile))
 
 def do_create_user(email, password, realm, full_name, short_name,

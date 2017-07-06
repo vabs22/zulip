@@ -103,6 +103,7 @@ class HomeTest(ZulipTestCase):
             "realm_authentication_methods",
             "realm_bot_domain",
             "realm_bots",
+            "realm_bots_services",
             "realm_create_stream_by_admins_only",
             "realm_default_language",
             "realm_default_streams",

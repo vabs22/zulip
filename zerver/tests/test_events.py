@@ -80,7 +80,7 @@ from zerver.lib.test_classes import (
 )
 from zerver.lib.validator import (
     check_bool, check_dict, check_dict_only, check_float, check_int, check_list, check_string,
-    equals, check_none_or, Validator
+    equals, check_none_or, Validator, check_url
 )
 
 from zerver.views.events_register import _default_all_public_streams, _default_narrow
@@ -1222,6 +1222,12 @@ class EventsRegisterTest(ZulipTestCase):
                 ('avatar_url', check_string),
                 ('owner', check_string),
             ])),
+            ('bot_service', check_list(check_dict_only([
+                ('name', check_string),
+                ('base_url', check_url),
+                ('interface', check_int),
+                ('email', check_string)
+            ]))),
         ])
         action = lambda: self.create_bot('test-bot@zulip.com')
         events = self.do_test(action, num_events=2)
@@ -1362,6 +1368,12 @@ class EventsRegisterTest(ZulipTestCase):
                 ('avatar_url', check_string),
                 ('owner', check_none_or(check_string)),
             ])),
+            ('bot_service', check_list(check_dict_only([
+                ('name', check_string),
+                ('base_url', check_url),
+                ('interface', check_int),
+                ('email', check_string)
+            ]))),
         ])
         bot = self.create_bot('foo-bot@zulip.com')
         do_deactivate_user(bot)

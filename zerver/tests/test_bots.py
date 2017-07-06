@@ -123,7 +123,8 @@ class BotTest(ZulipTestCase, UploadSerializeMixin):
                          default_sending_stream=None,
                          default_events_register_stream=None,
                          default_all_public_streams=False,
-                         owner=self.example_email('hamlet'))
+                         owner=self.example_email('hamlet')),
+                bot_service=[],
             ),
             event['event']
         )
@@ -291,7 +292,8 @@ class BotTest(ZulipTestCase, UploadSerializeMixin):
                          default_sending_stream='Denmark',
                          default_events_register_stream=None,
                          default_all_public_streams=False,
-                         owner=self.example_email('hamlet'))
+                         owner=self.example_email('hamlet')),
+                bot_service=[],
             ),
             event['event']
         )
@@ -361,7 +363,8 @@ class BotTest(ZulipTestCase, UploadSerializeMixin):
                          default_sending_stream=None,
                          default_events_register_stream='Denmark',
                          default_all_public_streams=False,
-                         owner=self.example_email('hamlet'))
+                         owner=self.example_email('hamlet')),
+                bot_service=[],
             ),
             event['event']
         )
