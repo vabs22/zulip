@@ -32,7 +32,7 @@ from zerver.tornado.event_queue import request_event_queue, get_user_events
 from zerver.models import Client, Message, Realm, UserPresence, UserProfile, \
     get_user_profile_by_id, \
     get_active_user_dicts_in_realm, realm_filters_for_realm, get_user,\
-    get_owned_bot_dicts, custom_profile_fields_for_realm, get_realm_domains
+    get_owned_bot_dicts, custom_profile_fields_for_realm, get_realm_domains, get_bot_service_dicts_for_users
 from zproject.backends import password_auth_enabled
 from version import ZULIP_VERSION
 
@@ -143,6 +143,7 @@ def fetch_initial_state_data(user_profile, event_types, queue_id,
 
     if want('realm_bot'):
         state['realm_bots'] = get_owned_bot_dicts(user_profile)
+        state['realm_bots_services'] = get_bot_service_dicts_for_users(user_profile)
 
     if want('subscription'):
         subscriptions, unsubscribed, never_subscribed = gather_subscriptions_helper(
@@ -242,14 +243,17 @@ def apply_event(state, event, user_profile, include_subscribers):
                             user_profile.email == person['email']):
                         if p['is_admin'] and not person['is_admin']:
                             state['realm_bots'] = []
+                            state['realm_bots_services'] = []
                         if not p['is_admin'] and person['is_admin']:
                             state['realm_bots'] = get_owned_bot_dicts(user_profile)
+                            state['realm_bots_services'] = get_bot_service_dicts_for_users(user_profile)
 
                     # Now update the person
                     p.update(person)
     elif event['type'] == 'realm_bot':
         if event['op'] == 'add':
             state['realm_bots'].append(event['bot'])
+            state['realm_bots_services'].extend(event['bot_service'])
 
         if event['op'] == 'remove':
             email = event['bot']['email']
@@ -264,6 +268,10 @@ def apply_event(state, event, user_profile, include_subscribers):
                         bot['owner'] = get_user_profile_by_id(event['bot']['owner_id']).email
                     else:
                         bot.update(event['bot'])
+            if 'bot_service' in event:
+                for bot_service in state['realm_bots_services']:
+                    if bot_service['email'] == event['bot_service']['email']:
+                        bot_service.update(event['bot_service'])
 
     elif event['type'] == 'stream':
         if event['op'] == 'create':
