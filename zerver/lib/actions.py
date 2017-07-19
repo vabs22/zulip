@@ -786,6 +786,8 @@ def do_send_messages(messages_maybe_none):
 
     for message in messages:
         message['message'].update_calculated_fields()
+        if len(message['message'].triggered_slash_commands) > 0:
+            message['message'].triggers_slash_command = True
 
     # Save the message receipts in the database
     user_message_flags = defaultdict(dict)  # type: Dict[int, Dict[int, List[str]]]
@@ -917,7 +919,8 @@ def do_send_messages(messages_maybe_none):
             event['local_id'] = message['local_id']
         if message['sender_queue_id'] is not None:
             event['sender_queue_id'] = message['sender_queue_id']
-        send_event(event, users)
+        if not message['message'].triggers_slash_command:
+            send_event(event, users)
 
         if url_embed_preview_enabled_for_realm(message['message']) and links_for_embed:
             event_data = {

@@ -780,7 +780,8 @@ def get_messages_backend(request, user_profile,
         # in realms with allow_edit_history disabled.
         if "edit_history" in msg_dict and not user_profile.realm.allow_edit_history:
             del msg_dict["edit_history"]
-        message_list.append(msg_dict)
+        if not msg_dict['triggers_slash_command'] or msg_dict['sender_id'] == user_profile.id:
+            message_list.append(msg_dict)
 
     statsd.incr('loaded_old_messages', len(message_list))
     ret = {'messages': message_list,

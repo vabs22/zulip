@@ -1083,6 +1083,7 @@ class AbstractMessage(ModelReprMixin, models.Model):
     has_attachment = models.BooleanField(default=False, db_index=True)  # type: bool
     has_image = models.BooleanField(default=False, db_index=True)  # type: bool
     has_link = models.BooleanField(default=False, db_index=True)  # type: bool
+    triggers_slash_command = models.BooleanField(default=False)  # type: bool
 
     class Meta(object):
         abstract = True
@@ -1166,6 +1167,7 @@ class Message(AbstractMessage):
             'sender__avatar_source',
             'sender__avatar_version',
             'sender__is_mirror_dummy',
+            'triggers_slash_command',
         ]
         messages = Message.objects.filter(id__in=needed_ids).values(*fields)
         """Adding one-many or Many-Many relationship in values results in N X

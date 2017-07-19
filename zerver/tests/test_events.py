@@ -480,6 +480,7 @@ class EventsRegisterTest(ZulipTestCase):
                 ('subject_links', check_list(None)),
                 ('timestamp', check_int),
                 ('type', check_string),
+                ('triggers_slash_command', check_bool),
             ])),
         ])
 

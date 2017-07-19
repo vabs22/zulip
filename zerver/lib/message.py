@@ -83,7 +83,8 @@ class MessageDict(object):
             recipient_id = message.recipient.id,
             recipient_type = message.recipient.type,
             recipient_type_id = message.recipient.type_id,
-            reactions = Reaction.get_raw_db_rows([message.id])
+            reactions = Reaction.get_raw_db_rows([message.id]),
+            triggers_slash_command=message.triggers_slash_command
         )
 
     @staticmethod
@@ -117,7 +118,8 @@ class MessageDict(object):
             recipient_id = row['recipient_id'],
             recipient_type = row['recipient__type'],
             recipient_type_id = row['recipient__type_id'],
-            reactions=row['reactions']
+            reactions=row['reactions'],
+            triggers_slash_command=row['triggers_slash_command']
         )
 
     @staticmethod
@@ -145,9 +147,10 @@ class MessageDict(object):
             recipient_id,
             recipient_type,
             recipient_type_id,
-            reactions
+            reactions,
+            triggers_slash_command
     ):
-        # type: (bool, Optional[Message], int, Optional[datetime.datetime], Optional[Text], Text, Text, datetime.datetime, Optional[Text], Optional[int], int, Text, int, Text, Text, Text, Text, int, bool, Text, int, int, int, List[Dict[str, Any]]) -> Dict[str, Any]
+        # type: (bool, Optional[Message], int, Optional[datetime.datetime], Optional[Text], Text, Text, datetime.datetime, Optional[Text], Optional[int], int, Text, int, Text, Text, Text, Text, int, bool, Text, int, int, int, List[Dict[str, Any]], bool) -> Dict[str, Any]
 
         avatar_url = avatar_url_from_dict(dict(
             avatar_source=sender_avatar_source,
@@ -181,19 +184,20 @@ class MessageDict(object):
                     display_recipient = [display_recipient[0], recip]
 
         obj = dict(
-            id                = message_id,
-            sender_email      = sender_email,
-            sender_full_name  = sender_full_name,
-            sender_short_name = sender_short_name,
-            sender_realm_str  = sender_realm_str,
-            sender_id         = sender_id,
-            type              = display_type,
-            display_recipient = display_recipient,
-            recipient_id      = recipient_id,
-            subject           = subject,
-            timestamp         = datetime_to_timestamp(pub_date),
-            avatar_url        = avatar_url,
-            client            = sending_client_name)
+            id                      = message_id,
+            sender_email            = sender_email,
+            sender_full_name        = sender_full_name,
+            sender_short_name       = sender_short_name,
+            sender_realm_str        = sender_realm_str,
+            sender_id               = sender_id,
+            type                    = display_type,
+            display_recipient       = display_recipient,
+            recipient_id            = recipient_id,
+            subject                 = subject,
+            timestamp               = datetime_to_timestamp(pub_date),
+            avatar_url              = avatar_url,
+            client                  = sending_client_name,
+            triggers_slash_command  = triggers_slash_command)
 
         if obj['type'] == 'stream':
             obj['stream_id'] = recipient_type_id
