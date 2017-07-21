@@ -441,9 +441,17 @@ def to_dict_cache_key_id(message_id, apply_markdown):
     # type: (int, bool) -> Text
     return u'message_dict:%d:%d' % (message_id, apply_markdown)
 
+def to_dict_cache_key_id_for_messages_triggering_slash_commands():
+    # type: () -> Text
+    from zerver.lib.create_user import random_api_key
+    return u'message_dict_for_slash_commands:%s' % (random_api_key())
+
 def to_dict_cache_key(message, apply_markdown):
     # type: (Message, bool) -> Text
-    return to_dict_cache_key_id(message.id, apply_markdown)
+    if hasattr(message, 'flag_triggers_slash_commands') and message.flag_triggers_slash_commands:
+        return to_dict_cache_key_id_for_messages_triggering_slash_commands()
+    else:
+        return to_dict_cache_key_id(message.id, apply_markdown)
 
 def flush_message(sender, **kwargs):
     # type: (Any, **Any) -> None

@@ -312,6 +312,7 @@ def render_markdown(message, content, realm=None, realm_alert_words=None, realm_
         message.mentions_user_ids = set()
         message.alert_words = set()
         message.triggered_slash_commands = set()
+        message.flag_triggers_slash_commands = False
         message.links_for_preview = set()
 
         if realm is None:

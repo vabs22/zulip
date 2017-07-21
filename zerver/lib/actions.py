@@ -787,6 +787,20 @@ def do_send_messages(messages_maybe_none):
     for message in messages:
         message['message'].update_calculated_fields()
 
+    slash_commands_filtered_messages = []
+    for message in messages:
+        if message['message'].flag_triggers_slash_commands:
+            triggered_slash_commands = message['message'].triggered_slash_commands
+            for command in triggered_slash_commands:
+                slash_trigger_event = {"command": command,
+                                       "trigger": "slash_command",
+                                       "message": message_to_dict(message['message'], apply_markdown=False)}
+                queue_json_publish("slash_commands", slash_trigger_event, lambda x: None)
+        else:
+            slash_commands_filtered_messages.append(message)
+
+    messages = slash_commands_filtered_messages
+
     # Save the message receipts in the database
     user_message_flags = defaultdict(dict)  # type: Dict[int, Dict[int, List[str]]]
     with transaction.atomic():
@@ -808,12 +822,6 @@ def do_send_messages(messages_maybe_none):
             mentioned_ids = message['message'].mentions_user_ids
             ids_with_alert_words = message['message'].user_ids_with_alert_words
             is_me_message = message['message'].is_me_message
-            triggered_slash_commands = message['message'].triggered_slash_commands
-            for command in triggered_slash_commands:
-                slash_trigger_event = {"command": command,
-                                       "trigger": "slash_command",
-                                       "message": message_to_dict(message['message'], apply_markdown=False)}
-                queue_json_publish("slash_commands", slash_trigger_event, lambda x: None)
 
             for um in ums_to_create:
                 if um.user_profile.id == message['message'].sender.id and \
@@ -1197,11 +1205,14 @@ def check_send_message(sender, client, message_type_name, message_to,
                        subject_name, message_content, realm=None, forged=False,
                        forged_timestamp=None, forwarder_user_profile=None, local_id=None,
                        sender_queue_id=None):
-    # type: (UserProfile, Client, Text, Sequence[Text], Optional[Text], Text, Optional[Realm], bool, Optional[float], Optional[UserProfile], Optional[Text], Optional[Text]) -> int
+    # type: (UserProfile, Client, Text, Sequence[Text], Optional[Text], Text, Optional[Realm], bool, Optional[float], Optional[UserProfile], Optional[Text], Optional[Text]) -> Optional[int]
     message = check_message(sender, client, message_type_name, message_to,
                             subject_name, message_content, realm, forged, forged_timestamp,
                             forwarder_user_profile, local_id, sender_queue_id)
-    return do_send_messages([message])[0]
+    ids = do_send_messages([message])
+    if len(ids) > 0:
+        return ids[0]
+    return None
 
 def check_stream_name(stream_name):
     # type: (Text) -> None

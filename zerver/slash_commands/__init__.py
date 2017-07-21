@@ -13,4 +13,4 @@ def get_slash_command_handler_class(command):
     if command in AVAILABLE_SLASH_COMMANDS:
         return AVAILABLE_SLASH_COMMANDS[command]
     else:
-        raise NotImplementedError("Error: Slash command %s not found." % command)
+        raise NotImplementedError("Error: Slash command %s not found." % command,)

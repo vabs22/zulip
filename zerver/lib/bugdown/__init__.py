@@ -1186,6 +1186,9 @@ class AlertWordsNotificationProcessor(markdown.preprocessors.Preprocessor):
                                        allowed_after_punctuation))
                 if re.search(match_re, content):
                     current_message.triggered_slash_commands.add(command)
+            if hasattr(current_message, 'triggered_slash_commands') and \
+                    len(current_message.triggered_slash_commands) > 0:
+                current_message.flag_triggers_slash_commands = True
         return lines
 
 # This prevents realm_filters from running on the content of a
