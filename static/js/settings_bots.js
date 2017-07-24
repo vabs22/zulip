@@ -133,12 +133,14 @@ exports.set_up = function () {
             var full_name = $('#create_bot_name').val();
             var short_name = $('#create_bot_short_name').val() || $('#create_bot_short_name').text();
             var payload_url = $('#create_payload_url').val();
+            var slash_command = $('#create_slash_command').val();
             var formData = new FormData();
 
             formData.append('csrfmiddlewaretoken', csrf_token);
             formData.append('bot_type', bot_type);
             formData.append('full_name', full_name);
             formData.append('short_name', short_name);
+            formData.append('slash_command', slash_command);
 
             // If the selected bot_type is Outgoing webhook
             if (bot_type === OUTGOING_WEBHOOK_BOT_TYPE) {
@@ -159,6 +161,7 @@ exports.set_up = function () {
                     $('#create_bot_name').val('');
                     $('#create_bot_short_name').val('');
                     $('#create_payload_url').val('');
+                    $('#create_slash_command').val('');
                     $('#payload_url_inputbox').hide();
                     $('#create_bot_type').val(GENERIC_BOT_TYPE);
                     $('#create_bot_button').show();

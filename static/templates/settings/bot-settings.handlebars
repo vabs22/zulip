@@ -62,6 +62,12 @@
                         <div><label for="create_payload_url" generated="true" class="text-error"></label></div>
                     </div>
                     <div class="input-group">
+                        <label for="create_slash_command">{{t "Slash command" }}</label>
+                        <input type="text" name="slash_command" id="create_slash_command" class="required"
+                               maxlength=100 placeholder="{{t 'cookie' }}" value="" />
+                        <div><label for="create_slash_command" generated="true" class="text-error"></label></div>
+                    </div>
+                    <div class="input-group">
                         <div id="bot_avatar_file"></div>
                         <input type="file" name="bot_avatar_file_input" class="notvisible" id="bot_avatar_file_input" value="{{t 'Upload avatar' }}" />
                         <button class="button white rounded small btn-danger display-none" id="bot_avatar_clear_button">{{t "Clear avatar" }}</button>
